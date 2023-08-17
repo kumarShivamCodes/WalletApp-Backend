@@ -7,4 +7,5 @@ public class UserOutputDto {
 
     private String username;
     private Integer balance;
+    private Integer accNo;
 }

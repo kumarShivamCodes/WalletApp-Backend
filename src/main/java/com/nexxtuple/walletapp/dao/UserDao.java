@@ -16,4 +16,6 @@ public interface UserDao {
     User updateUserBalance(String userId,Integer amount);
 
     User transferAmount(String userId,Integer amount);
+
+    User getUserByAccNo(Integer accNo);
 }

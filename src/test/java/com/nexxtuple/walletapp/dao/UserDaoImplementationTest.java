@@ -73,6 +73,19 @@ public class UserDaoImplementationTest {
     }
 
     @Test
+    public void testGetUserByAccNo()
+    {
+        //when
+        when(userRepository.findByAccNo(12345)).thenReturn(new User());
+
+        //action
+        User user=userDao.getUserByAccNo(12345);
+
+        //assert
+        assertNotNull(user);
+    }
+
+    @Test
     public void testAddUser()
     {
         User newUser=new User();

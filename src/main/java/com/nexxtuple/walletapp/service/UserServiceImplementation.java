@@ -77,7 +77,7 @@ public class UserServiceImplementation implements UserService{
         }
         User userWithUpdatedBalance=userdao.updateUserBalance(user.getId(),amount);
 
-        Transaction rechargeTransaction= TransactionFactory.createRechargeTransaction(username,amount,accNo);
+        Transaction rechargeTransaction= TransactionFactory.createRechargeTransaction(username,amount,Integer.toString(user.getAccNo()));
         transactionService.createTransaction(rechargeTransaction);
 
         UserOutputDto userOutputDto=modelMapper.map(userWithUpdatedBalance,UserOutputDto.class);
@@ -88,6 +88,7 @@ public class UserServiceImplementation implements UserService{
     public UserOutputDto transferAmount(String username, Integer amount,String accNo) {
 
         User user=userdao.getByUserName(username);
+
         if (user == null) {
             throw new UserNotFoundException("User not found: "+username);
         }
@@ -95,13 +96,32 @@ public class UserServiceImplementation implements UserService{
         {
             throw new InvalidAmountException("Amount should be equal to or less current balance");
         }
+
         else
         {
-            User userWithUpdatedBalance= userdao.transferAmount(user.getId(),amount);
-            UserOutputDto userOutputDto=modelMapper.map(userWithUpdatedBalance,UserOutputDto.class);
-            Transaction transferTransaction = TransactionFactory.createTransferTransaction(username, amount,accNo);
-            transactionService.createTransaction(transferTransaction);
-            return userOutputDto ;
+            User userReceivingAmount=userdao.getUserByAccNo(Integer.parseInt(accNo));
+            if(userReceivingAmount==null)
+            {
+                throw new InvalidAmountException("No user with given account number exists");
+            }
+
+            else if(user.getAccNo()==Integer.parseInt(accNo))
+            {
+
+                throw new InvalidAmountException("Can transfer to same account number");
+            }
+
+            else{
+                userdao.updateUserBalance(userReceivingAmount.getId(),amount);
+                User userWithUpdatedBalance= userdao.transferAmount(user.getId(),amount);
+                UserOutputDto userOutputDto=modelMapper.map(userWithUpdatedBalance,UserOutputDto.class);
+
+                Transaction transferTransaction = TransactionFactory.createTransferTransaction(username, amount,accNo);
+                transactionService.createTransaction(transferTransaction);
+                return userOutputDto ;
+            }
+
+
         }
 
     }

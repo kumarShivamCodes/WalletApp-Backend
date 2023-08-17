@@ -2,6 +2,7 @@ package com.nexxtuple.walletapp.dao;
 
 
 import com.nexxtuple.walletapp.entity.User;
+import com.nexxtuple.walletapp.factory.UserFactory;
 import com.nexxtuple.walletapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,7 +31,8 @@ public class UserDaoImplementation implements UserDao{
 
     @Override
     public User addUser(User user) {
-        return userRepository.save(user);
+        User newUser = UserFactory.createUser(user.getUsername(), user.getEmail(), user.getPassword());
+        return userRepository.save(newUser);
     }
 
     @Override
@@ -54,6 +56,11 @@ public class UserDaoImplementation implements UserDao{
             return userRepository.save(user);
         }
         return null;
+    }
+
+    @Override
+    public User getUserByAccNo(Integer accNo) {
+        return userRepository.findByAccNo(accNo);
     }
 
 }

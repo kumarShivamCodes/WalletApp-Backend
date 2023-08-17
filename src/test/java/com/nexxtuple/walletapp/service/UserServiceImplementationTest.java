@@ -3,6 +3,7 @@ package com.nexxtuple.walletapp.service;
 import com.nexxtuple.walletapp.dao.UserDao;
 import com.nexxtuple.walletapp.dto.UserOutputDto;
 import com.nexxtuple.walletapp.entity.User;
+import com.nexxtuple.walletapp.exception.PasswordMismatchException;
 import com.nexxtuple.walletapp.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -78,5 +79,21 @@ public class UserServiceImplementationTest {
         when(userDao.getByUserName(username)).thenReturn(null);
 
         assertThrows(UserNotFoundException.class, () -> userService.getUser(username, password));
+    }
+
+    @Test
+    public void testGetUser_PasswordMismatch()
+    {
+        String username="shivam";
+        String password="wrong password";
+        User user=new User();
+        user.setUsername(username);
+        user.setPassword("1qqww22");
+
+        when(userDao.getByUserName(username)).thenReturn(user);
+
+       assertThrows(PasswordMismatchException.class,()->userService.getUser(username,password));
+
+
     }
 }

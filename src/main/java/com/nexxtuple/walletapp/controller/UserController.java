@@ -2,6 +2,7 @@ package com.nexxtuple.walletapp.controller;
 
 import com.nexxtuple.walletapp.dto.*;
 import com.nexxtuple.walletapp.entity.Transaction;
+import com.nexxtuple.walletapp.exception.InvalidAmountException;
 import com.nexxtuple.walletapp.service.TransactionService;
 import com.nexxtuple.walletapp.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -57,8 +58,15 @@ public class UserController {
     @PatchMapping("/transfer")
     public ResponseEntity<UserOutputDto> transferAmount(@RequestBody UserInputBalanceDto userInputBalanceDto)
     {
-        UserOutputDto userOutputDto=userService.transferAmount(userInputBalanceDto.getUsername(),userInputBalanceDto.getAmount(),userInputBalanceDto.getAccNo());
-        return new ResponseEntity<>(userOutputDto,HttpStatus.OK);
+        try {
+            UserOutputDto userOutputDto = userService.transferAmount(userInputBalanceDto.getUsername(), userInputBalanceDto.getAmount(), userInputBalanceDto.getAccNo());
+            return new ResponseEntity<>(userOutputDto, HttpStatus.OK);
+        }
+        catch ( NumberFormatException e)
+        {
+            System.out.println(e);
+            throw new InvalidAmountException("User with provided account number does not exist");
+        }
     }
 
     @GetMapping("/transactions/{username}")
