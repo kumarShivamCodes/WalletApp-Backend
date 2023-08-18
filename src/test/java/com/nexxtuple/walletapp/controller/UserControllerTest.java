@@ -1,13 +1,12 @@
 package com.nexxtuple.walletapp.controller;
 
 
-import com.nexxtuple.walletapp.dto.UserInputLoginDto;
-import com.nexxtuple.walletapp.dto.UserInputRegisterDto;
-import com.nexxtuple.walletapp.dto.UserOutputDto;
+import com.nexxtuple.walletapp.dao.UserDao;
+import com.nexxtuple.walletapp.dto.*;
+import com.nexxtuple.walletapp.entity.Transaction;
 import com.nexxtuple.walletapp.entity.User;
-import com.nexxtuple.walletapp.exception.PasswordMismatchException;
-import com.nexxtuple.walletapp.exception.UserAlreadyExistsException;
-import com.nexxtuple.walletapp.exception.UserNotFoundException;
+import com.nexxtuple.walletapp.exception.*;
+import com.nexxtuple.walletapp.service.TransactionService;
 import com.nexxtuple.walletapp.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,9 +17,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.mockito.Mockito.*;
 
 public class UserControllerTest {
@@ -33,6 +36,12 @@ public class UserControllerTest {
 
     @Mock
     private ModelMapper modelMapper;
+
+    @Mock
+    private UserDao userDao;
+
+    @Mock
+    private TransactionService transactionService;
 
     @BeforeEach
     public void setup()
@@ -159,5 +168,57 @@ public class UserControllerTest {
 
       assertThrows( UserAlreadyExistsException.class ,()->userController.addUser(userInputRegisterDto));
     }
-}
 
+    @Test
+    public void testRechargeBalance_Success() {
+        UserInputBalanceDto userInput = new UserInputBalanceDto("username", 50, "12345678");
+        UserOutputDto expectedUserOutput = new UserOutputDto();
+
+        when(userService.updateUserBalance(anyString(), anyInt(), anyString()))
+                .thenReturn(expectedUserOutput);
+
+        ResponseEntity<UserOutputDto> response = userController.rechargeBalance(userInput);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedUserOutput, response.getBody());
+    }
+
+
+    @Test
+    public void testTransferAmount_Success() {
+        UserInputBalanceDto userInput = new UserInputBalanceDto("sender", 50, "12345678");
+        UserOutputDto expectedUserOutput = new UserOutputDto();
+
+        when(userService.transferAmount(anyString(), anyInt(), anyString()))
+                .thenReturn(expectedUserOutput);
+
+        ResponseEntity<UserOutputDto> response = userController.transferAmount(userInput);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedUserOutput, response.getBody());
+    }
+
+    @Test
+    public void testGetAllTransactionsByUsername_Success() {
+        String username = "user1";
+
+        List<Transaction> mockTransactions = Arrays.asList(
+                new Transaction("shivam","Recharge",100,"1223456"),
+                new Transaction("shivam","Transfer",50,"1223457")
+        );
+
+        List<TransactionOutputDto> mockTransactionDtos = mockTransactions.stream()
+                .map(transaction -> new TransactionOutputDto(/* mapped dto details */))
+                .collect(Collectors.toList());
+
+        when(transactionService.getAllTransactionsByUsername(username)).thenReturn(mockTransactions);
+        when(modelMapper.map(any(Transaction.class), eq(TransactionOutputDto.class)))
+                .thenReturn(mockTransactionDtos.get(0), mockTransactionDtos.get(1));
+
+        ResponseEntity<List<TransactionOutputDto>> response = userController.getAllTransactionsByUsername(username);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(mockTransactionDtos, response.getBody());
+    }
+
+}

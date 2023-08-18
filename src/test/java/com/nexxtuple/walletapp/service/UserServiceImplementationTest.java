@@ -4,17 +4,12 @@ import com.nexxtuple.walletapp.dao.UserDao;
 import com.nexxtuple.walletapp.dto.UserInputRegisterDto;
 import com.nexxtuple.walletapp.dto.UserOutputDto;
 import com.nexxtuple.walletapp.entity.User;
-import com.nexxtuple.walletapp.exception.InvalidAmountException;
-import com.nexxtuple.walletapp.exception.PasswordMismatchException;
-import com.nexxtuple.walletapp.exception.UserAlreadyExistsException;
-import com.nexxtuple.walletapp.exception.UserNotFoundException;
+import com.nexxtuple.walletapp.exception.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -312,7 +307,7 @@ public class UserServiceImplementationTest {
         when(userDao.getByUserName(senderUsername)).thenReturn(sender);
         when(userDao.getUserByAccNo(12345678)).thenReturn(null);
 
-        assertThrows(InvalidAmountException.class,()->userService.transferAmount(senderUsername, amountToTransfer, "12345678"));
+        assertThrows(UserNotFoundException.class,()->userService.transferAmount(senderUsername, amountToTransfer, "12345678"));
     }
 
     @Test
@@ -329,7 +324,7 @@ public class UserServiceImplementationTest {
         when(userDao.getByUserName(senderUsername)).thenReturn(sender);
         when(userDao.getUserByAccNo(12345678)).thenReturn(sender);
 
-       assertThrows(InvalidAmountException.class,()->userService.transferAmount(senderUsername, amountToTransfer, Integer.toString(sender.getAccNo())));
+       assertThrows(InvalidAccountException.class,()->userService.transferAmount(senderUsername, amountToTransfer, Integer.toString(sender.getAccNo())));
     }
 
 }

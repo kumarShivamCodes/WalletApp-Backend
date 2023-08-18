@@ -5,10 +5,7 @@ import com.nexxtuple.walletapp.dto.UserInputRegisterDto;
 import com.nexxtuple.walletapp.dto.UserOutputDto;
 import com.nexxtuple.walletapp.entity.Transaction;
 import com.nexxtuple.walletapp.entity.User;
-import com.nexxtuple.walletapp.exception.InvalidAmountException;
-import com.nexxtuple.walletapp.exception.PasswordMismatchException;
-import com.nexxtuple.walletapp.exception.UserAlreadyExistsException;
-import com.nexxtuple.walletapp.exception.UserNotFoundException;
+import com.nexxtuple.walletapp.exception.*;
 import com.nexxtuple.walletapp.factory.TransactionFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,13 +99,13 @@ public class UserServiceImplementation implements UserService{
             User userReceivingAmount=userdao.getUserByAccNo(Integer.parseInt(accNo));
             if(userReceivingAmount==null)
             {
-                throw new InvalidAmountException("No user with given account number exists");
+                throw new UserNotFoundException("No user with given account number exists");
             }
 
             else if(user.getAccNo()==Integer.parseInt(accNo))
             {
 
-                throw new InvalidAmountException("Can transfer to same account number");
+                throw new InvalidAccountException("Can transfer to same account number");
             }
 
             else{

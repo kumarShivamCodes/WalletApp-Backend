@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import java.util.Random;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @Document(collection="user")
 public class User {

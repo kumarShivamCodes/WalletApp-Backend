@@ -1,12 +1,14 @@
 package com.nexxtuple.walletapp.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@NoArgsConstructor
 @Data
 @Document(collection = "transactions")
 public class Transaction {
@@ -34,7 +36,7 @@ public class Transaction {
     }
 
     //method to format date
-    private String getCurrentFormattedDate(){
+    public String getCurrentFormattedDate(){
         SimpleDateFormat dateFormat=new SimpleDateFormat("HH:mm dd-MM-yyyy");
         Date currentDate=new Date();
         return dateFormat.format(currentDate);
